@@ -1,13 +1,16 @@
 import { FormEvent, useState } from "react";
 import { useAppDispatch } from "../../app/store";
-import { postAdded } from "./postsSlice";
+import { addNewPost } from "./postsSlice";
 import { useSelector } from "react-redux";
 import { selectAllUsers } from "../users/usersSlice";
 
 const AddPostForm = () => {
    const [title, setTitle] = useState("");
    const [content, setContent] = useState("");
-   const [userId, setUserId] = useState("");
+   const [userId, setUserId] = useState(0);
+   const [addRequestStatus, setAddRequestStatus] = useState("idle");
+
+   const canPost: boolean = [title, content, userId].every(Boolean) && addRequestStatus === "idle";
 
    const users = useSelector(selectAllUsers);
 
@@ -16,13 +19,19 @@ const AddPostForm = () => {
    const handleSubmit = (event: FormEvent) => {
       event.preventDefault();
       if (canPost) {
-         dispatch(postAdded(title, content, userId));
-         setTitle("");
-         setContent("");
+         try {
+            setAddRequestStatus("pending");
+            dispatch(addNewPost({title, body: content, userId})).unwrap();
+            setTitle('');
+            setContent('');
+            setUserId(0);  
+         } catch (error) {
+            console.error("Failed to save the post", error);
+         } finally {
+            setAddRequestStatus("idle");
+         }
       }
    };
-
-   const canPost: boolean = Boolean(title) && Boolean(content) && Boolean(userId);
 
    const userOptions = users.map((user) => (
       <option key={user.id} value={user.id}>
@@ -37,7 +46,7 @@ const AddPostForm = () => {
             <label htmlFor="postTitle">Post Title: </label>
             <input required type="text" name="postTitle" value={title} id="postTitle" onChange={(e) => setTitle(e.target.value)} />
             <label htmlFor="postAuthor">Author: </label>
-            <select required name="postAuthor" value={userId} id="postAuthor" onChange={(e) => setUserId(e.target.value)}>
+            <select required name="postAuthor" value={userId} id="postAuthor" onChange={(e) => setUserId(Number(e.target.value))}>
                <option value=""></option>
                {userOptions}
             </select>
