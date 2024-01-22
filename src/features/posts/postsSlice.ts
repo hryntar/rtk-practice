@@ -1,6 +1,6 @@
 import { PayloadAction, createSlice, nanoid, createAsyncThunk } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { sub } from "date-fns/sub";
 
 const POST_URL = "https://jsonplaceholder.typicode.com/posts";
@@ -31,13 +31,13 @@ const initialState: IInitialState = {
 };
 
 export const fetchPosts = createAsyncThunk("posts/fetchPosts", async () => {
-   const { data } = await axios.get<Post[]>(POST_URL);
+   const { data }: AxiosResponse<Post[]> = await axios.get(POST_URL);
    console.log('thunk');
    return data;
 });
 
 export const addNewPost = createAsyncThunk("posts/addNewPost", async (initialPost: { title: string; body: string; userId: number }) => {
-   const response = await axios.post<Post>(POST_URL, initialPost);
+   const response: AxiosResponse<Post> = await axios.post<Post>(POST_URL, initialPost);
    return response.data;
 });
 
@@ -131,6 +131,9 @@ const postsSlice = createSlice({
 export const selectAllPosts = (state: RootState) => state.posts.posts;
 export const getPostsStatus = (state: RootState) => state.posts.status;
 export const getPostsError = (state: RootState) => state.posts.error;
+export const selectPostById = (state: RootState, postId: string) => (
+   state.posts.posts.find(post => post.id === postId)
+);
 
 export const { postAdded, reactionAdded } = postsSlice.actions;
 
