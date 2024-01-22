@@ -3,14 +3,17 @@ import { useAppDispatch } from "../../app/store";
 import { addNewPost } from "./postsSlice";
 import { useSelector } from "react-redux";
 import { selectAllUsers } from "../users/usersSlice";
+import { useNavigate } from "react-router-dom";
 
 const AddPostForm = () => {
    const [title, setTitle] = useState("");
    const [content, setContent] = useState("");
    const [userId, setUserId] = useState(0);
-   const [addRequestStatus, setAddRequestStatus] = useState("idle");
+   const [requestStatus, setRequestStatus] = useState("idle");
 
-   const canPost: boolean = [title, content, userId].every(Boolean) && addRequestStatus === "idle";
+   const navigate = useNavigate();
+
+   const canPost: boolean = [title, content, userId].every(Boolean) && requestStatus === "idle";
 
    const users = useSelector(selectAllUsers);
 
@@ -20,15 +23,16 @@ const AddPostForm = () => {
       event.preventDefault();
       if (canPost) {
          try {
-            setAddRequestStatus("pending");
+            setRequestStatus("pending");
             dispatch(addNewPost({title, body: content, userId})).unwrap();
             setTitle('');
             setContent('');
             setUserId(0);  
+            navigate(`/`)
          } catch (error) {
             console.error("Failed to save the post", error);
          } finally {
-            setAddRequestStatus("idle");
+            setRequestStatus("idle");
          }
       }
    };

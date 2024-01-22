@@ -1,6 +1,6 @@
 import { PayloadAction, createSlice, nanoid, createAsyncThunk } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { sub } from "date-fns/sub";
 
 const POST_URL = "https://jsonplaceholder.typicode.com/posts";
@@ -10,7 +10,7 @@ type Reactions = {
 };
 
 export type Post = {
-   id: string;
+   id: string | number;
    title: string;
    body: string;
    userId: number;
@@ -18,9 +18,11 @@ export type Post = {
    reactions: Reactions;
 };
 
+export type StatusType = "idle" | "loading" | "succeeded" | "failed";
+
 interface IInitialState {
    posts: Post[];
-   status: "idle" | "loading" | "succeeded" | "failed";
+   status: StatusType;
    error: string | null;
 }
 
@@ -31,14 +33,30 @@ const initialState: IInitialState = {
 };
 
 export const fetchPosts = createAsyncThunk("posts/fetchPosts", async () => {
-   const { data } = await axios.get<Post[]>(POST_URL);
-   console.log('thunk');
+   const { data }: AxiosResponse<Post[]> = await axios.get(POST_URL);
    return data;
 });
 
 export const addNewPost = createAsyncThunk("posts/addNewPost", async (initialPost: { title: string; body: string; userId: number }) => {
-   const response = await axios.post<Post>(POST_URL, initialPost);
+   const response: AxiosResponse<Post> = await axios.post<Post>(POST_URL, initialPost);
    return response.data;
+});
+
+export const updatePost = createAsyncThunk("posts/updatePost", async (initialPost: Post) => {
+   try {
+      const { id } = initialPost;
+      const response: AxiosResponse<Post> = await axios.put<Post>(`${POST_URL}/${id}`, initialPost);
+      return response.data;
+   } catch (error) {
+      return initialPost;
+   }
+});
+
+export const deletePost = createAsyncThunk("posts/deletePost", async (initialPost: { id: string | number }) => {
+   const { id } = initialPost;
+   const response: AxiosResponse<Post> = await axios.delete<Post>(`${POST_URL}/${id}`);
+   if (response.status === 200) return initialPost;
+   return `${response.status}: ${response.statusText}`;
 });
 
 const postsSlice = createSlice({
@@ -68,7 +86,7 @@ const postsSlice = createSlice({
             };
          },
       },
-      reactionAdded: (state, action: PayloadAction<{ postId: string; reaction: string }>) => {
+      reactionAdded: (state, action: PayloadAction<{ postId: number | string; reaction: string }>) => {
          const { postId, reaction } = action.payload;
          const existingPost = state.posts.find((post) => post.id === postId);
          if (existingPost) {
@@ -79,7 +97,7 @@ const postsSlice = createSlice({
    extraReducers(builder) {
       builder
          .addCase(fetchPosts.pending, (state) => {
-            state.status = "loading"; 
+            state.status = "loading";
          })
          .addCase(fetchPosts.fulfilled, (state, action) => {
             state.status = "succeeded";
@@ -95,16 +113,15 @@ const postsSlice = createSlice({
                      rocket: 0,
                      coffee: 0,
                   };
-                  post.id = nanoid();
                   return post;
                });
 
                state.posts = state.posts.concat(loadedPosts);
             }
          })
-         .addCase(fetchPosts.rejected, (state, action) => { 
+         .addCase(fetchPosts.rejected, (state, action) => {
             state.status = "failed";
-            state.error = action.error.message!; 
+            state.error = action.error.message!;
          })
          .addCase(addNewPost.fulfilled, (state, { payload }) => {
             if (typeof payload !== "string") {
@@ -113,7 +130,7 @@ const postsSlice = createSlice({
                   if (a.id < b.id) return -1;
                   return 0;
                });
-               payload.id = sortedPosts[sortedPosts.length - 1].id + 1;
+               payload.id = Number(sortedPosts[sortedPosts.length - 1].id) + 1;
                payload.date = new Date().toISOString();
                payload.reactions = {
                   thumbsUp: 0,
@@ -124,6 +141,26 @@ const postsSlice = createSlice({
                };
                state.posts.push(payload);
             }
+         })
+         .addCase(updatePost.fulfilled, (state, { payload }) => {
+            if (!payload.id) {
+               console.log("Update could not complete");
+               console.log(payload);
+               return;
+            } 
+            payload.date = new Date().toISOString();
+            const { id } = payload;
+            const posts = state.posts.filter((post) => post.id !== Number(id));
+            state.posts = [...posts, payload];
+         })
+         .addCase(deletePost.fulfilled, (state, { payload }) => {
+            if (typeof payload === "string" || !payload.id) {
+               console.log("Failed to delete post" + payload);
+            } else {
+               const { id } = payload;
+               const posts = state.posts.filter((post) => post.id !== id);
+               state.posts = posts;
+            }
          });
    },
 });
@@ -131,6 +168,7 @@ const postsSlice = createSlice({
 export const selectAllPosts = (state: RootState) => state.posts.posts;
 export const getPostsStatus = (state: RootState) => state.posts.status;
 export const getPostsError = (state: RootState) => state.posts.error;
+export const selectPostById = (state: RootState, postId: string | number) => state.posts.posts.find((post) => post.id === postId);
 
 export const { postAdded, reactionAdded } = postsSlice.actions;
 
