@@ -1,34 +1,44 @@
-import { FormEvent, useState } from "react";
-import { useAppDispatch } from "../../app/store";
-import { addNewPost } from "./postsSlice";
-import { useSelector } from "react-redux";
+import { FC, FormEvent, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import { selectAllUsers } from "../users/usersSlice";
-import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { RootState, useAppDispatch } from "../../app/store";
+import { selectPostById, updatePost } from "./postsSlice";
 
-const AddPostForm = () => {
-   const [title, setTitle] = useState("");
-   const [content, setContent] = useState("");
-   const [userId, setUserId] = useState(0);
-   const [requestStatus, setRequestStatus] = useState("idle");
+const EditPostForm: FC = () => {
+   const { postId } = useParams();
+   const navigate = useNavigate();    
 
-   const navigate = useNavigate();
-
-   const canPost: boolean = [title, content, userId].every(Boolean) && requestStatus === "idle";
-
+   const post = useSelector((state: RootState) => postId ? selectPostById(state, typeof postId === 'number' ? postId : Number(postId)) : null) ;
    const users = useSelector(selectAllUsers);
 
+   const [title, setTitle] = useState(post?.title);
+   const [content, setContent] = useState(post?.body);
+   const [userId, setUserId] = useState(post?.userId);
+   const [requestStatus, setRequestStatus] = useState("idle");
+
    const dispatch = useAppDispatch();
+
+   if (!post) {
+      return (
+         <section>
+            <h2>Post not found!</h2>
+         </section>
+      );
+   }
+
+   const canPost = postId && title && content && userId && requestStatus === "idle";
 
    const handleSubmit = (event: FormEvent) => {
       event.preventDefault();
       if (canPost) {
          try {
             setRequestStatus("pending");
-            dispatch(addNewPost({title, body: content, userId})).unwrap();
-            setTitle('');
-            setContent('');
-            setUserId(0);  
-            navigate(`/`)
+            dispatch(updatePost({ id: postId, title, body: content, userId, reactions: post.reactions, date: "" })).unwrap();
+            setTitle("");
+            setContent("");
+            setUserId(0);
+            navigate(`/post/${postId}`);
          } catch (error) {
             console.error("Failed to save the post", error);
          } finally {
@@ -45,7 +55,7 @@ const AddPostForm = () => {
 
    return (
       <section>
-         <h2>Add a New Post</h2>
+         <h2>Edit post</h2>
          <form>
             <label htmlFor="postTitle">Post Title: </label>
             <input required type="text" name="postTitle" value={title} id="postTitle" onChange={(e) => setTitle(e.target.value)} />
@@ -64,4 +74,4 @@ const AddPostForm = () => {
    );
 };
 
-export default AddPostForm;
+export default EditPostForm;

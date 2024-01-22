@@ -10,7 +10,7 @@ type Reactions = {
 };
 
 export type Post = {
-   id: string;
+   id: string | number;
    title: string;
    body: string;
    userId: number;
@@ -37,6 +37,12 @@ export const fetchPosts = createAsyncThunk("posts/fetchPosts", async () => {
 
 export const addNewPost = createAsyncThunk("posts/addNewPost", async (initialPost: { title: string; body: string; userId: number }) => {
    const response: AxiosResponse<Post> = await axios.post<Post>(POST_URL, initialPost);
+   return response.data;
+});
+
+export const updatePost = createAsyncThunk("posts/updatePost", async (initialPost: Post) => {
+   const { id } = initialPost;
+   const response: AxiosResponse<Post> = await axios.put<Post>(`${POST_URL}/${id}`, initialPost);
    return response.data;
 });
 
@@ -78,7 +84,7 @@ const postsSlice = createSlice({
    extraReducers(builder) {
       builder
          .addCase(fetchPosts.pending, (state) => {
-            state.status = "loading"; 
+            state.status = "loading";
          })
          .addCase(fetchPosts.fulfilled, (state, action) => {
             state.status = "succeeded";
@@ -93,17 +99,16 @@ const postsSlice = createSlice({
                      heart: 0,
                      rocket: 0,
                      coffee: 0,
-                  };
-                  post.id = nanoid();
+                  }; 
                   return post;
                });
 
                state.posts = state.posts.concat(loadedPosts);
             }
          })
-         .addCase(fetchPosts.rejected, (state, action) => { 
+         .addCase(fetchPosts.rejected, (state, action) => {
             state.status = "failed";
-            state.error = action.error.message!; 
+            state.error = action.error.message!;
          })
          .addCase(addNewPost.fulfilled, (state, { payload }) => {
             if (typeof payload !== "string") {
@@ -112,7 +117,7 @@ const postsSlice = createSlice({
                   if (a.id < b.id) return -1;
                   return 0;
                });
-               payload.id = sortedPosts[sortedPosts.length - 1].id + 1;
+               payload.id = Number(sortedPosts[sortedPosts.length - 1].id) + 1;
                payload.date = new Date().toISOString();
                payload.reactions = {
                   thumbsUp: 0,
@@ -123,6 +128,17 @@ const postsSlice = createSlice({
                };
                state.posts.push(payload);
             }
+         })
+         .addCase(updatePost.fulfilled, (state, { payload }) => {
+            if (!payload.id) {
+               console.log("Update could not complete");
+               console.log(payload);
+               return;
+            }
+            payload.date = new Date().toISOString();
+            const { id } = payload;
+            const posts = state.posts.filter((post) => post.id !== id);
+            state.posts = [...posts, payload];
          });
    },
 });
@@ -130,9 +146,7 @@ const postsSlice = createSlice({
 export const selectAllPosts = (state: RootState) => state.posts.posts;
 export const getPostsStatus = (state: RootState) => state.posts.status;
 export const getPostsError = (state: RootState) => state.posts.error;
-export const selectPostById = (state: RootState, postId: string) => (
-   state.posts.posts.find(post => post.id === postId)
-);
+export const selectPostById = (state: RootState, postId: string | number) => state.posts.posts.find((post) => post.id === postId);
 
 export const { postAdded, reactionAdded } = postsSlice.actions;
 

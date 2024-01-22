@@ -5,12 +5,14 @@ import { useSelector } from "react-redux";
 import { selectPostById } from "./postsSlice";
 import { RootState } from "../../app/store";
 import { FC } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 const SinglePostPage: FC = () => {
    const { postId } = useParams(); 
 
-   const post = useSelector((state: RootState) => postId ? selectPostById(state, postId) : null) ;
+   const post = useSelector((state: RootState) => postId ? selectPostById(state, typeof postId === 'number' ? postId : Number(postId)) : null) ;
+   console.log(post);
+   
 
    if (!post) {
       return (
@@ -25,6 +27,7 @@ const SinglePostPage: FC = () => {
          <h2>{post.title}</h2>
          <p>{post.body}</p>
          <p className="postCredit">
+            <Link to={`/post/edit/${postId}`}>Edit Post</Link>
             <PostAuthor userId={post.userId} />
             <TimeAgo timestamp={post.date} />
          </p>
