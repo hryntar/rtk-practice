@@ -3,19 +3,19 @@ import { useNavigate, useParams } from "react-router-dom";
 import { selectAllUsers } from "../users/usersSlice";
 import { useSelector } from "react-redux";
 import { RootState, useAppDispatch } from "../../app/store";
-import { selectPostById, updatePost } from "./postsSlice";
+import { StatusType, deletePost, selectPostById, updatePost } from "./postsSlice";
 
 const EditPostForm: FC = () => {
    const { postId } = useParams();
-   const navigate = useNavigate();    
+   const navigate = useNavigate();
 
-   const post = useSelector((state: RootState) => postId ? selectPostById(state, typeof postId === 'number' ? postId : Number(postId)) : null) ;
+   const post = useSelector((state: RootState) => (postId ? selectPostById(state, typeof postId === "number" ? postId : Number(postId)) : null));
    const users = useSelector(selectAllUsers);
 
    const [title, setTitle] = useState(post?.title);
    const [content, setContent] = useState(post?.body);
    const [userId, setUserId] = useState(post?.userId);
-   const [requestStatus, setRequestStatus] = useState("idle");
+   const [requestStatus, setRequestStatus] = useState<StatusType>("idle");
 
    const dispatch = useAppDispatch();
 
@@ -33,8 +33,8 @@ const EditPostForm: FC = () => {
       event.preventDefault();
       if (canPost) {
          try {
-            setRequestStatus("pending");
-            dispatch(updatePost({ id: postId, title, body: content, userId, reactions: post.reactions, date: "" })).unwrap();
+            setRequestStatus("loading");
+            dispatch(updatePost({ id: Number(postId), title, body: content, userId, reactions: post.reactions, date: "" })).unwrap();
             setTitle("");
             setContent("");
             setUserId(0);
@@ -53,6 +53,21 @@ const EditPostForm: FC = () => {
       </option>
    ));
 
+   const handleDeletePost = () => {
+      try {
+         setRequestStatus("loading");
+         dispatch(deletePost({ id: post.id })).unwrap();
+         setTitle("");
+         setContent("");
+         setUserId(0);
+         navigate(`/`);
+      } catch (error) {
+         console.error("Failed to delete post", error);
+      } finally {
+         setRequestStatus("idle");
+      }
+   };
+
    return (
       <section>
          <h2>Edit post</h2>
@@ -68,6 +83,9 @@ const EditPostForm: FC = () => {
             <textarea required name="postContent" value={content} id="postContent" onChange={(e) => setContent(e.target.value)} />
             <button disabled={!canPost} onClick={handleSubmit} type="submit">
                Save Post
+            </button>
+            <button className="deleteButton" onClick={handleDeletePost} type="submit">
+               Delete Post
             </button>
          </form>
       </section>

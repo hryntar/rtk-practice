@@ -18,9 +18,11 @@ export type Post = {
    reactions: Reactions;
 };
 
+export type StatusType = "idle" | "loading" | "succeeded" | "failed";
+
 interface IInitialState {
    posts: Post[];
-   status: "idle" | "loading" | "succeeded" | "failed";
+   status: StatusType;
    error: string | null;
 }
 
@@ -41,9 +43,20 @@ export const addNewPost = createAsyncThunk("posts/addNewPost", async (initialPos
 });
 
 export const updatePost = createAsyncThunk("posts/updatePost", async (initialPost: Post) => {
+   try {
+      const { id } = initialPost;
+      const response: AxiosResponse<Post> = await axios.put<Post>(`${POST_URL}/${id}`, initialPost);
+      return response.data;
+   } catch (error) {
+      return initialPost;
+   }
+});
+
+export const deletePost = createAsyncThunk("posts/deletePost", async (initialPost: { id: string | number }) => {
    const { id } = initialPost;
-   const response: AxiosResponse<Post> = await axios.put<Post>(`${POST_URL}/${id}`, initialPost);
-   return response.data;
+   const response: AxiosResponse<Post> = await axios.delete<Post>(`${POST_URL}/${id}`);
+   if (response.status === 200) return initialPost;
+   return `${response.status}: ${response.statusText}`;
 });
 
 const postsSlice = createSlice({
@@ -99,7 +112,7 @@ const postsSlice = createSlice({
                      heart: 0,
                      rocket: 0,
                      coffee: 0,
-                  }; 
+                  };
                   return post;
                });
 
@@ -134,11 +147,20 @@ const postsSlice = createSlice({
                console.log("Update could not complete");
                console.log(payload);
                return;
-            }
+            } 
             payload.date = new Date().toISOString();
             const { id } = payload;
-            const posts = state.posts.filter((post) => post.id !== id);
+            const posts = state.posts.filter((post) => post.id !== Number(id));
             state.posts = [...posts, payload];
+         })
+         .addCase(deletePost.fulfilled, (state, { payload }) => {
+            if (typeof payload === "string" || !payload.id) {
+               console.log("Failed to delete post" + payload);
+            } else {
+               const { id } = payload;
+               const posts = state.posts.filter((post) => post.id !== id);
+               state.posts = posts;
+            }
          });
    },
 });
