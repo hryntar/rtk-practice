@@ -32,7 +32,6 @@ const initialState: IInitialState = {
 
 export const fetchPosts = createAsyncThunk("posts/fetchPosts", async () => {
    const { data }: AxiosResponse<Post[]> = await axios.get(POST_URL);
-   console.log('thunk');
    return data;
 });
 

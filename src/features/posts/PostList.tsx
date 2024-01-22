@@ -14,7 +14,6 @@ const PostList: FC = () => {
    useEffect(() => {
       if (postsStatus === 'idle') {
          dispatch(fetchPosts());
-         console.log("виконується запит");
       }
    }, [postsStatus, dispatch]);
 
