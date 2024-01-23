@@ -1,4 +1,4 @@
-import { PayloadAction, createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { PayloadAction, createSlice, createAsyncThunk, createSelector } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
 import axios, { AxiosResponse } from "axios";
 import { sub } from "date-fns/sub";
@@ -146,6 +146,10 @@ export const selectAllPosts = (state: RootState) => state.posts.posts;
 export const getPostsStatus = (state: RootState) => state.posts.status;
 export const getPostsError = (state: RootState) => state.posts.error;
 export const selectPostById = (state: RootState, postId: string | number) => state.posts.posts.find((post) => post.id === postId);
+export const selectPostsByUser = createSelector(
+   [selectAllPosts, (_: RootState, userId: number) => userId],
+   (posts, userId) => posts.filter((post) => post.userId === userId)
+);
 
 export const { reactionAdded } = postsSlice.actions;
 

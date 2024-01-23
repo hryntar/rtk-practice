@@ -1,11 +1,11 @@
-import { FC } from "react";
+import { FC, memo } from "react";
 import { Post } from "./postsSlice";
 import PostAuthor from "./PostAuthor";
 import TimeAgo from "./TimeAgo";
 import ReactionButtons from "./ReactionButtons";
 import { Link } from "react-router-dom";
 
-const PostsExcerpt: FC<{ post: Post }> = ({ post }) => {
+const PostsExcerpt: FC<{ post: Post }> = memo(({ post }) => {
    return (
       <article>
          <h2>{post.title}</h2>
@@ -18,6 +18,6 @@ const PostsExcerpt: FC<{ post: Post }> = ({ post }) => {
          <ReactionButtons post={post} />
       </article>
    );
-};
+});
 
 export default PostsExcerpt;
