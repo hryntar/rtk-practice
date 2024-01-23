@@ -1,4 +1,4 @@
-import { PayloadAction, createSlice, nanoid, createAsyncThunk } from "@reduxjs/toolkit";
+import { PayloadAction, createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
 import axios, { AxiosResponse } from "axios";
 import { sub } from "date-fns/sub";
@@ -62,30 +62,7 @@ export const deletePost = createAsyncThunk("posts/deletePost", async (initialPos
 const postsSlice = createSlice({
    name: "posts",
    initialState,
-   reducers: {
-      postAdded: {
-         reducer: (state, action: PayloadAction<Post>) => {
-            state.posts.push(action.payload);
-         },
-         prepare: (title: string, body: string, userId: number) => {
-            return {
-               payload: {
-                  id: nanoid(),
-                  title,
-                  body,
-                  userId,
-                  date: new Date().toISOString(),
-                  reactions: {
-                     thumbsUp: 0,
-                     wow: 0,
-                     heart: 0,
-                     rocket: 0,
-                     coffee: 0,
-                  },
-               },
-            };
-         },
-      },
+   reducers: { 
       reactionAdded: (state, action: PayloadAction<{ postId: number | string; reaction: string }>) => {
          const { postId, reaction } = action.payload;
          const existingPost = state.posts.find((post) => post.id === postId);
@@ -170,6 +147,6 @@ export const getPostsStatus = (state: RootState) => state.posts.status;
 export const getPostsError = (state: RootState) => state.posts.error;
 export const selectPostById = (state: RootState, postId: string | number) => state.posts.posts.find((post) => post.id === postId);
 
-export const { postAdded, reactionAdded } = postsSlice.actions;
+export const { reactionAdded } = postsSlice.actions;
 
 export default postsSlice.reducer;
