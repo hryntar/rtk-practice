@@ -2,22 +2,23 @@ import { FC, FormEvent, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { selectAllUsers } from "../users/usersSlice";
 import { useSelector } from "react-redux";
-import { RootState, useAppDispatch } from "../../app/store";
-import { StatusType, deletePost, selectPostById, updatePost } from "./postsSlice";
+import { RootState } from "../../app/store";
+import { selectPostById } from "./postsSlice";
+import { useUpdatePostMutation, useDeletePostMutation } from "./postsSlice";
 
 const EditPostForm: FC = () => {
    const { postId } = useParams();
    const navigate = useNavigate();
+
+   const [updatePost, { isLoading }] = useUpdatePostMutation();
+   const [deletePost] = useDeletePostMutation();
 
    const post = useSelector((state: RootState) => (postId ? selectPostById(state, typeof postId === "number" ? postId : Number(postId)) : null));
    const users = useSelector(selectAllUsers);
 
    const [title, setTitle] = useState(post?.title);
    const [content, setContent] = useState(post?.body);
-   const [userId, setUserId] = useState(post?.userId);
-   const [requestStatus, setRequestStatus] = useState<StatusType>("idle");
-
-   const dispatch = useAppDispatch();
+   const [userId, setUserId] = useState(post?.userId); 
 
    if (!post) {
       return (
@@ -27,22 +28,19 @@ const EditPostForm: FC = () => {
       );
    }
 
-   const canPost = postId && title && content && userId && requestStatus === "idle";
+   const canPost = postId && title && content && userId && !isLoading;
 
-   const handleSubmit = (event: FormEvent) => {
+   const handleSubmit = async (event: FormEvent) => {
       event.preventDefault();
       if (canPost) {
          try {
-            setRequestStatus("loading");
-            dispatch(updatePost({ id: Number(postId), title, body: content, userId, reactions: post.reactions, date: "" })).unwrap();
+            await updatePost({ id: Number(postId), title, body: content, userId, reactions: post.reactions, date: "" }).unwrap();
             setTitle("");
             setContent("");
             setUserId(0);
             navigate(`/post/${postId}`);
          } catch (error) {
             console.error("Failed to save the post", error);
-         } finally {
-            setRequestStatus("idle");
          }
       }
    };
@@ -53,19 +51,17 @@ const EditPostForm: FC = () => {
       </option>
    ));
 
-   const handleDeletePost = () => {
+   const handleDeletePost = async (event: FormEvent) => {
+      event.preventDefault();
       try {
-         setRequestStatus("loading");
-         dispatch(deletePost({ id: post.id })).unwrap();
+         await deletePost({ id: post.id }).unwrap();
          setTitle("");
          setContent("");
          setUserId(0);
          navigate(`/`);
       } catch (error) {
          console.error("Failed to delete post", error);
-      } finally {
-         setRequestStatus("idle");
-      }
+      } 
    };
 
    return (
