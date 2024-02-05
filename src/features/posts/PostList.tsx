@@ -2,7 +2,7 @@ import { useSelector } from "react-redux";
 import { FC } from "react";
 import { selectPostIds } from "./postsSlice"; 
 import PostsExcerpt from "./PostsExcerpt"; 
-import { useGetPostsQuery } from "./postsSlice";
+import { useGetPostsQuery } from "./postsSlice"; 
 
 const PostList: FC = () => { 
    const {
@@ -21,12 +21,11 @@ const PostList: FC = () => {
       content = orderedPostIds.map(postId => <PostsExcerpt key={postId} postId={postId} />) 
    } else if (isError) {
       console.error(error); 
-      content = <p>Something went wrong( <br /> Please try again</p>
+      content = <p className="mt-20 text-center text-xl">Something went wrong. <br />  Please try again</p>
    }
 
    return (
-      <section>
-         <h2>Posts</h2>
+      <section className="grid justify-center gap-y-10 pt-10"> 
          {content}
       </section>
    );

@@ -7,14 +7,14 @@ const UsersList = () => {
 
    const renderedUsers = users.map((user) => (
       <li key={user.id}>
-         <Link to={`/user/${user.id}`}>{user.name}</Link>
+         <Link className="underline hover:text-[#D7D9CE]/70 transition" to={`/user/${user.id}`}>{user.name}</Link>
       </li>
    ));
 
    return (
-      <section>
-         <h2>Users</h2>
-         <ul>{renderedUsers}</ul>
+      <section className="pt-10 space-y-5">
+         <h2 className="text-2xl font-semibold">All Users</h2>
+         <ul className="text-xl space-y-2">{renderedUsers}</ul>
       </section>
    );
 };

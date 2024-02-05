@@ -1,132 +1,105 @@
-* {
-   margin: 0;
-   padding: 0;
-   box-sizing: border-box;
-}
-
-html {
-   font-family: Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
-   background-color: white;
-   color: #000;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 body {
-   min-height: 100vh;
-   font-size: 1.5rem;
+   background-color: #040404;
+   color: #D7D9CE;
+}
+ 
+/* width */
+::-webkit-scrollbar {
+   width: 7px;
 }
 
-input,
-textarea,
-button,
-select {
-   font: inherit;
-   margin-bottom: 1em;
+/* Track */
+::-webkit-scrollbar-track {
+   background: #D7D9CE;
 }
 
-header {
-   padding: 1rem;
-   display: flex;
-   justify-content: space-between;
-   align-items: flex-start;
-   background-color: purple;
-   color: whitesmoke;
-   position: sticky;
-   top: 0;
+/* Handle */
+::-webkit-scrollbar-thumb {
+   background: #888;
+   border-radius: 5px;
 }
 
-nav {
-   display: flex;
-   justify-content: flex-end;
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+   background: #555;
 }
 
-nav ul {
-   list-style-type: none;
-}
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 224 71.4% 4.1%;
 
-nav ul li {
-   display: inline-block;
-   margin-right: 1rem;
-}
+    --card: 0 0% 100%;
+    --card-foreground: 224 71.4% 4.1%;
+ 
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71.4% 4.1%;
+ 
+    --primary: 220.9 39.3% 11%;
+    --primary-foreground: 210 20% 98%;
+ 
+    --secondary: 220 14.3% 95.9%;
+    --secondary-foreground: 220.9 39.3% 11%;
+ 
+    --muted: 220 14.3% 95.9%;
+    --muted-foreground: 220 8.9% 46.1%;
+ 
+    --accent: 220 14.3% 95.9%;
+    --accent-foreground: 220.9 39.3% 11%;
+ 
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 20% 98%;
 
-nav a,
-nav a:visited {
-   color: #fff;
-   text-decoration: none;
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 224 71.4% 4.1%;
+ 
+    --radius: 0.5rem;
+  }
+ 
+  .dark {
+    --background: 224 71.4% 4.1%;
+    --foreground: 210 20% 98%;
+ 
+    --card: 224 71.4% 4.1%;
+    --card-foreground: 210 20% 98%;
+ 
+    --popover: 224 71.4% 4.1%;
+    --popover-foreground: 210 20% 98%;
+ 
+    --primary: 210 20% 98%;
+    --primary-foreground: 220.9 39.3% 11%;
+ 
+    --secondary: 215 27.9% 16.9%;
+    --secondary-foreground: 210 20% 98%;
+ 
+    --muted: 215 27.9% 16.9%;
+    --muted-foreground: 217.9 10.6% 64.9%;
+ 
+    --accent: 215 27.9% 16.9%;
+    --accent-foreground: 210 20% 98%;
+ 
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 20% 98%;
+ 
+    --border: 215 27.9% 16.9%;
+    --input: 215 27.9% 16.9%;
+    --ring: 216 12.2% 83.9%;
+  }
 }
-
-nav a:hover,
-nav a:focus {
-   text-decoration: underline;
-}
-
-main {
-   max-width: 500px;
-   margin: auto;
-}
-
-section {
-   margin-top: 1em;
-}
-
-article {
-   margin: 0.5em;
-   border: 1px solid #000;
-   border-radius: 10px;
-   padding: 1em;
-}
-
-h1 {
-   font-size: 3.5rem;
-}
-
-h2 {
-   margin-bottom: 1rem;
-}
-
-p {
-   font-family: Arial, Helvetica, sans-serif;
-   line-height: 1.4;
-   font-size: 1.2rem;
-   margin: 0.5em 0;
-}
-
-form {
-   display: flex;
-   flex-direction: column;
-}
-
-textarea {
-   height: 200px;
-}
-
-.postCredit {
-   font-size: 1rem;
-}
-
-.postCredit a,
-.postCredit a:visited {
-   margin-right: 0.5rem;
-   color: black;
-}
-
-.postCredit a:hover,
-.postCredit a:focus {
-   color: hsla(0, 0%, 0%, 0.75);
-}
-
-.excerpt {
-   font-style: italic;
-}
-
-.reactionButton {
-   margin: 0 0.25em 0 0;
-   background: transparent;
-   border: none;
-   color: #000;
-   font-size: 1rem;
-}
-
-.deleteButton {
-   background-color: palevioletred;
-   color: white;
+ 
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  .max-container {
+      @apply max-w-7xl mx-auto;
+  }
 }

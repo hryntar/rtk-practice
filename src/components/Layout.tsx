@@ -5,7 +5,7 @@ const Layout = () => {
    return (
       <>
          <Header />
-         <main className="App">
+         <main className="max-container py-[100px] px-3">
             <Outlet />
          </main>
       </>

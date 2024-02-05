@@ -26,7 +26,7 @@ const UserPage: FC = () => {
       const { ids, entities } = postsForUser;
       content = ids.map((postId) => (
          <li key={postId}>
-            <Link to={`/post/${postId}`}>{entities[postId].title}</Link>
+            - <Link className="underline hover:text-[#D7D9CE]/70 transition" to={`/post/${postId}`}>{entities[postId].title}</Link>
          </li>
       ));
    } else if (isError) {
@@ -35,9 +35,9 @@ const UserPage: FC = () => {
    }
 
    return (
-      <section>
-         <h2>{user?.name}</h2>
-         <ol>{content}</ol>
+      <section className="space-y-3 pt-10">
+         <h2 className="text-3xl">{user?.name}</h2>
+         <ol className="text-lg">{content}</ol>
       </section>
    );
 };
