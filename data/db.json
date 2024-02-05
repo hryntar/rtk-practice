@@ -310,19 +310,6 @@
       }
     },
     {
-      "userId": 2,
-      "id": 20,
-      "title": "doloribus ad provident suscipit at",
-      "body": "qui consequuntur ducimus possimus quisquam amet similique\nsuscipit porro ipsam amet\neos veritatis officiis exercitationem vel fugit aut necessitatibus totam\nomnis rerum consequatur expedita quidem cumque explicabo",
-      "reactions": {
-        "thumbsUp": 3,
-        "wow": 0,
-        "heart": 0,
-        "rocket": 0,
-        "coffee": 0
-      }
-    },
-    {
       "userId": 3,
       "id": 21,
       "title": "asperiores ea ipsam voluptatibus modi minima quia sint",
@@ -755,7 +742,14 @@
       "userId": 10,
       "id": 92,
       "title": "ratione ex tenetur perferendis",
-      "body": "aut et excepturi dicta laudantium sint rerum nihil\nlaudantium et at\na neque minima officia et similique libero et\ncommodi voluptate qui"
+      "body": "aut et excepturi dicta laudantium sint rerum nihil\nlaudantium et at\na neque minima officia et similique libero et\ncommodi voluptate qui",
+      "reactions": {
+        "thumbsUp": 2,
+        "wow": 0,
+        "heart": 0,
+        "rocket": 0,
+        "coffee": 0
+      }
     },
     {
       "userId": 10,

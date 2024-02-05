@@ -8,7 +8,7 @@ const PostAuthor: FC<{userId: number}> = ({userId}) => {
 
    const author = users.find((user) => user.id === Number(userId));
 
-   return <span>by {author ? <Link to={`/user/${userId}`}>{author.name}</Link> : "Unknown author"}</span>;
+   return <span>by {author ? <Link className="underline hover:text-[#D7D9CE]/70 transition" to={`/user/${userId}`}>{author.name}</Link> : "Unknown author"}</span>;
 };
 
 export default PostAuthor;

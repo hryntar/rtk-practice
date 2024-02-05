@@ -18,7 +18,6 @@ const ReactionButtons: FC<{ post: Post }> = ({ post }) => {
          <button
             key={name}
             type="button"
-            className="reactionButton"
             onClick={() => {
                const newValue = post.reactions[name] + 1;
                addReaction({ postId: post.id, reactions: { ...post.reactions, [name]: newValue } });
@@ -29,7 +28,7 @@ const ReactionButtons: FC<{ post: Post }> = ({ post }) => {
       );
    });
 
-   return <div>{reactionButtons}</div>;
+   return <div className="flex item-center gap-5">{reactionButtons}</div>;
 };
 
 export default ReactionButtons;
